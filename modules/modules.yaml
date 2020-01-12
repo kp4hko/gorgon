@@ -1,0 +1,17 @@
+-   category: Finding subdomains
+    modules:
+        -   name: amass
+            executable: /root/amass_v3.4.2_linux_amd64/amass
+            default options: [enum, --passive, -d, _domain_]
+        -   name: subfinder
+            executable: /root/work/bin/subfinder
+            default options: [-silent, -d, _domain_]
+        -   name: massdns
+            executable: /root/massdns/bin/massdns
+            default options: [-r, /root/massdns/lists/reliable_resolvers.txt, -t, A, -o, S, --verify-ip, --quiet]
+            subdomain list: /root/all.txt
+-   category: Finding Hosts
+    modules:
+        -   name: resolve_unresolved_hosts
+        -   name: asns_search
+        -   name: gather_ips_info
