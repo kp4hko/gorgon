@@ -15,3 +15,5 @@
         -   name: resolve_unresolved_hosts
         -   name: asns_search
         -   name: gather_ips_info
+        -   name: censys
+            path to keys: /root/.config/subfinder/config.json
