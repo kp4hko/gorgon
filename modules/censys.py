@@ -26,5 +26,12 @@ def run(db_connection, project_name):
 									db_connection[project_name + ".ips"].update_one({"ip": censys_search_result['ip']}, {'$push': {"certs": cert}})
 							else:
 								db_connection[project_name + ".ips"].update_one({"ip": censys_search_result['ip']}, {'$set': {"certs": [cert] }})
+
+							host = db_connection[project_name + ".ips"].find_one({ "ip": censys_search_result['ip']})
+
+							cert_domain = re.sub('^\*\.', '', cert)
+							domain = db_connection[project_name + ".domains"].find_one({"domain": cert_domain })
+							if domain is None:
+								db_connection[project_name + ".domains"].insert_one({ "domain": cert_domain, "found_from": [ "censys" ] })
 				except Exception as e:
 					print(e.__class__, e)
