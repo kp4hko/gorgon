@@ -138,6 +138,18 @@ class gorgon_cli(cmd2.Cmd):
 				self.db[self.project + ".domains"].insert_one({ "domain": args.domain, "found_from": [ "manually" ], "top_level": True})
 			else:
 				self.db[self.project + ".domains"].update_one({ "domain": args.domain }, {'$set': { "top_level": True }})
+				
+	set_ooc_domain_parser = argparse.ArgumentParser()
+	set_ooc_domain_parser.add_argument('domain', help='out of scope domain to set')
+	@cmd2.with_argparser(set_ooc_domain_parser)
+	def do_set_ooc_domain(self, args):
+		"""Sets domain as out of scope"""
+		if self.check_project_to_be_set():
+			domain = self.db[self.project + ".domains"].find_one({ "domain": args.domain })
+			if domain == None:
+				self.db[self.project + ".domains"].insert_one({ "domain": args.domain, "found_from": [ "manually" ], "out_of_scope": True})
+			else:
+				self.db[self.project + ".domains"].update_one({ "domain": args.domain }, {'$set': { "out_of_scope": True }})
 
 	set_company_name_parser = argparse.ArgumentParser()
 	set_company_name_parser.add_argument('company', help='company name to add')

@@ -30,6 +30,19 @@ def find_subdomains_run(db_connection, project_name, module_name):
 def find_top_level_domains(db_connection, project_name):
 	return db_connection[project_name + ".domains"].find( { "top_level": True } )
 	
+def get_in_scope_ips(db_connection, project_name):
+	out_of_scope_rules = get_config_param("masscan", "do not scan")
+	query_string = { "$nor": [] }
+	for rule in out_of_scope_rules:
+		for key in rule:
+			expr = re.compile(rule[key], re.IGNORECASE)
+			query_string["$nor"].append( { key : { "$regex": expr } } )
+	domains_out_of_scope = db_connection[project_name + ".domains"].find({ "out_of_scope": True})
+	for ooc_domain in domains_out_of_scope:
+		query_string["$nor"].append( { "domain" : ooc_domain["domain"] } )
+	return db_connection[project_name + ".ips"].find(query_string)
+	
+	
 def parse_config_file():
 	with open("modules/modules.yaml") as config:
 		return yaml.load(config)
