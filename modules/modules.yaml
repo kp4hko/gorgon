@@ -27,3 +27,5 @@
             executable: /usr/bin/masscan
             result file: /tmp/masscan_output 
             default options: [ -oJ, _resultfile_, -p0-65535, --rate, 17000]
+        -   name: nmap
+            default options: [-Pn, -n, -sS, -sV, -T4, --randomize-hosts]

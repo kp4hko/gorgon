@@ -53,7 +53,8 @@ def get_default_args_for_command(module_name):
 	for category in config:
 		for module in category["modules"]:
 			if module["name"] == module_name:
-				default_args.append(module["executable"])
+				if "executable" in module:
+					default_args.append(module["executable"])
 				default_args.extend(module["default options"])
 	return default_args
 
