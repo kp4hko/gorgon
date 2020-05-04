@@ -1,6 +1,7 @@
 import subprocess
 import yaml
 import re
+import os
 
 def get_top_level_domains(db_connection, project_name):
 	top_domains = find_top_level_domains(db_connection, project_name)
@@ -68,12 +69,14 @@ def get_config_param(module_name, param):
 def run_massdns(db_connection, project_name, domains_to_test, massdns_module):
 	args_fc = get_default_args_for_command("massdns")
 	subdomains_to_test = '\n'.join(domains_to_test)
-	popen = subprocess.Popen(args_fc, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-	stdout, _ = popen.communicate(input=subdomains_to_test.encode())
-	str_output = stdout.decode()
-	for line in str_output.splitlines():
+	tmp_filename = get_config_param("massdns", "temporary subdomains file")
+	with open(tmp_filename, 'w') as tmp_file:
+		tmp_file.write(subdomains_to_test)
+	cat_p = subprocess.Popen(["cat", tmp_filename], stdout=subprocess.PIPE)
+	popen = subprocess.Popen(args_fc, stdout=subprocess.PIPE, stdin=cat_p.stdout, stderr=subprocess.PIPE)
+	for line in popen.stdout:
 		if line != None:
-			ln = line.strip()
+			ln = line.decode().strip()
 			if ln != '':
 				new_entry = ln.split()
 				new_entry[0] = re.sub('\.$', '', new_entry[0])
@@ -102,6 +105,7 @@ def run_massdns(db_connection, project_name, domains_to_test, massdns_module):
 						insert_ip_to_db(ips, new_entry[2], new_entry[0])
 					elif new_entry[1] == 'CNAME':
 						domains.insert_one({"domain": new_entry[0], "found_from": [ "massdns" ], "cname": new_entry[2] })
+	os.remove(tmp_filename)
 
 def insert_ip_to_db(ip_collection, ip_addr, domain_name):
 	ip = ip_collection.find_one({ "ip": ip_addr })
