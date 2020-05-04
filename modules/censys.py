@@ -6,6 +6,7 @@ import re
 def run(db_connection, project_name):
 	top_domains = get_top_level_domains(db_connection, project_name)
 	if top_domains is not None:
+		tup_top_domains = tuple(top_domains)
 		censys_keys = get_config_param("censys", "path to keys")
 		with open(censys_keys) as json_file:
 			api_keys = json.load(json_file)
@@ -30,8 +31,9 @@ def run(db_connection, project_name):
 							host = db_connection[project_name + ".ips"].find_one({ "ip": censys_search_result['ip']})
 
 							cert_domain = re.sub('^\*\.', '', cert)
-							domain = db_connection[project_name + ".domains"].find_one({"domain": cert_domain })
-							if domain is None:
-								db_connection[project_name + ".domains"].insert_one({ "domain": cert_domain, "found_from": [ "censys" ] })
+							if cert_domain.endswith(tup_top_domains):
+								domain = db_connection[project_name + ".domains"].find_one({"domain": cert_domain })
+								if domain is None:
+									db_connection[project_name + ".domains"].insert_one({ "domain": cert_domain, "found_from": [ "censys" ] })
 				except Exception as e:
 					print(e.__class__, e)
