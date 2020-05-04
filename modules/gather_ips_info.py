@@ -13,11 +13,14 @@ def run(db_connection, project_name):
 
 	for ip in db_connection[project_name + ".ips"].find():
 		if "asn" not in ip:
-			if not check_ip_in_net(db_connection, project_name, IPAddress(ip["ip"]), nets):
-				whois_obj = IPWhois(ip["ip"])
-				whois_results = whois_obj.lookup_rdap()
-				if "asn_description" in whois_results:
-					db_connection[project_name + ".ips"].update_one({"ip": ip["ip"]}, {'$set': { "asn": whois_results["asn_description"]}})
+			try:
+				if not check_ip_in_net(db_connection, project_name, IPAddress(ip["ip"]), nets):
+					whois_obj = IPWhois(ip["ip"])
+					whois_results = whois_obj.lookup_rdap()
+					if "asn_description" in whois_results:
+						db_connection[project_name + ".ips"].update_one({"ip": ip["ip"]}, {'$set': { "asn": whois_results["asn_description"]}})
+			except Exception:
+				pass
 		if "rdns" not in ip:
 			try:
 				rdns, _, _ = socket.gethostbyaddr(ip["ip"])
