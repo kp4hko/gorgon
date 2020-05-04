@@ -24,7 +24,7 @@ def run(db_connection, project_name):
 		options = get_default_args_for_command("nmap")
 		finished = 0
 		number_of_targets = len(targets)
-		print("total targets: " + number_of_targets)
+		print("total targets: " + str(number_of_targets))
 		for target in targets_to_scan:
 			opts = " ".join(options) + " -p " + ','.join(target["ports"])
 			print(" ".join(target["ips"]))
