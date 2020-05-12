@@ -42,6 +42,9 @@ def run(db_connection, project_name):
 				for host in parsed_report.hosts:
 					for service in host.services:
 						db_connection[project_name + ".ips"].update_one({"ip": host.address}, {'$set': {"ports.$[elem].service": service.service}}, array_filters=[ { "elem.port":  service.port} ])
-						db_connection[project_name + ".ips"].update_one({"ip": host.address}, {'$set': {"ports.$[elem].version": service.banner}}, array_filters=[ { "elem.port":  service.port} ])
+						if service.banner != '':
+							db_connection[project_name + ".ips"].update_one({"ip": host.address}, {'$set': {"ports.$[elem].version": service.banner}}, array_filters=[ { "elem.port":  service.port} ])
+						if service.tunnel != '':
+							db_connection[project_name + ".ips"].update_one({"ip": host.address}, {'$set': {"ports.$[elem].tunnel": service.tunnel}}, array_filters=[ { "elem.port":  service.port} ])
 			else:
 				print(nmproc.stderr, nmproc.stdout)
