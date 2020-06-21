@@ -30,3 +30,9 @@
             default options: [ -oJ, _resultfile_, -p0-65535, --rate, 17000]
         -   name: nmap
             default options: [-Pn, -n, -sS, -sV, -T4, --randomize-hosts]
+-   category: Acquaintance with Targets
+    modules:
+        -   name: wappalyze
+            max redirects: 30
+            max concurrent requests: 350
+            request timeout: 30
